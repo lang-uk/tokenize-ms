@@ -1,0 +1,6 @@
+aiohttp==0.21.6
+cchardet==1.0.0
+gunicorn==19.6.0
+jsonschema==2.5.1
+six==1.10.0
+tokenize-uk==0.1.5
