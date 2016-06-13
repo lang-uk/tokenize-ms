@@ -1,26 +1,17 @@
-import asyncio
-
 from aiohttp import web
 
 from validator import validate
 from swagger import document
 from tokenize_uk import tokenize_text
+from schema import TOKENIZE_TEXT_OUTPUT_SCHEMA, TOKENIZE_TEXT_INPUT_SCHEMA
 
 
-
-@validate(input_schema={
-    "type": "object",
-    "properties": {
-        "text": {"type": "string"},
-    },
-    "required": ["text"],
-    "additionalProperties": False
-})
+@validate(
+    input_schema=TOKENIZE_TEXT_INPUT_SCHEMA,
+    output_schema=TOKENIZE_TEXT_OUTPUT_SCHEMA,
+)
 async def tokenize_text_handler(request, *args):
-
-    return {
-        "response": tokenize_text(request["text"])
-    }
+    return tokenize_text(request["text"])
 
 
 app = web.Application()
