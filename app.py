@@ -6,7 +6,7 @@ paragraphs into sentences and sentences into words.
 """
 from aiohttp import web
 from validator import validate
-from swagger import document
+from swagger import swaggerify, document
 from tokenize_uk import tokenize_text
 from schema import TOKENIZE_TEXT_OUTPUT_SCHEMA, TOKENIZE_TEXT_INPUT_SCHEMA
 
@@ -23,6 +23,21 @@ __email__ = "chaplinsky.dmitry@gmail.com"
     input_schema=TOKENIZE_TEXT_INPUT_SCHEMA,
     output_schema=TOKENIZE_TEXT_OUTPUT_SCHEMA,
 )
+@document(
+    info={
+        "tags": ["tokenization", "lang-uk"],
+        "x-microservice-taxonomy": ["test"]
+    },
+    input={
+        "description": "Just a text"
+    },
+    output={
+        "examples": {
+            "application/json": [[["I'm", "going", "to", "tokenize", "!"]]]
+        },
+        "description": "Nested result of tokenization"
+    },
+)
 async def tokenize_text_handler(request, *args):
     """
     Tokenize given text into paragraphs, sentences and words.
@@ -36,7 +51,7 @@ async def tokenize_text_handler(request, *args):
 app = web.Application()
 app.router.add_route("POST", "/tokenize_text", tokenize_text_handler)
 
-app = document(
+app = swaggerify(
     app,
     basePath="/",
     host="127.0.0.1:8080"

@@ -29,7 +29,7 @@ def parse_docstring(s):
     }
 
 
-def document(app, parse_module_info=True, **kwargs):
+def swaggerify(app, parse_module_info=True, **kwargs):
     """
     Parse information from given app, it's path handlers and callee module
     itself to populate swagger definition file
@@ -65,6 +65,31 @@ def document(app, parse_module_info=True, **kwargs):
                 "405": {"description": "Method is not allowed"},
             }
         }
+
+        if hasattr(r.handler, "_input_schema"):
+            desc["parameters"] = [{
+                "in": "body",
+                "name": "body",
+                "required": True,
+                "schema": r.handler._input_schema
+            }]
+
+            if hasattr(r.handler, "_swg_input"):
+                desc["parameters"][0].update(r.handler._swg_input)
+
+        if hasattr(r.handler, "_output_schema"):
+            desc["responses"]["200"] = {
+                # TODO: think how to override
+                "description": "Results of the request",
+                "schema": r.handler._output_schema
+            }
+
+            if hasattr(r.handler, "_swg_output"):
+                desc["responses"]["200"].update(r.handler._swg_output)
+
+        if hasattr(r.handler, "_swg_info"):
+            desc.update(r.handler._swg_info)
+
         paths_config[r._resource._path][r.method.lower()] = desc
 
     # Populate complete config
@@ -132,4 +157,21 @@ def document(app, parse_module_info=True, **kwargs):
 
     return app
 
-__all__ = ["document", ]
+
+def document(info=None, input=None, output=None):
+    """
+    Add extra information about request handler and its params
+    """
+    def wrapper(func):
+        if info is not None:
+            setattr(func, "_swg_info", info)
+        if input is not None:
+            setattr(func, "_swg_input", input)
+        if output is not None:
+            setattr(func, "_swg_output", output)
+        return func
+
+    return wrapper
+
+
+__all__ = ["swaggerify", "document"]

@@ -9,6 +9,9 @@ from jsonschema.validators import validator_for
 
 
 def _raise_exception(cls, reason, data=None):
+    """
+    Raise aiohttp exception and pass payload/reason into it.
+    """
     text_dict = {
         "error": reason
     }
@@ -23,6 +26,9 @@ def _raise_exception(cls, reason, data=None):
 
 
 def _validate_data(data, schema, validator_cls):
+    """
+    Validate the dict against given schema (using given validator class).
+    """
     validator = validator_cls(schema)
     _errors = defaultdict(list)
     for err in validator.iter_errors(data):
@@ -65,7 +71,9 @@ def _validate_data(data, schema, validator_cls):
 
 
 def validate(input_schema=None, output_schema=None):
-
+    """
+    Decorate request handler to make it automagically validate it's input and output.
+    """
     def wrapper(func):
         # Validating the schemas itself.
         # Die with exception if they aren't valid
@@ -91,6 +99,7 @@ def validate(input_schema=None, output_schema=None):
             else:
                 request = args[-1]
 
+            # Strictly expect json object here
             try:
                 req_body = yield from request.json()
             except (json.decoder.JSONDecodeError, TypeError):
@@ -98,20 +107,21 @@ def validate(input_schema=None, output_schema=None):
                     web.HTTPBadRequest,
                     "Input is malformed; could not decode JSON object.")
 
+            # Validate input data against input schema (if given)
             if input_schema is not None:
                 _validate_data(req_body, input_schema,
                                _input_schema_validator)
-                # TODO: return validation errors
 
             context = yield from coro(req_body, request)
 
+            # No validation of output for websockets stream
             if isinstance(context, web.StreamResponse):
                 return context
 
+            # Validate output data against output schema (if given)
             if output_schema is not None:
                 _validate_data(context, output_schema,
                                _output_schema_validator)
-                # TODO: return validation errors
 
             try:
                 return web.json_response(context)
@@ -120,6 +130,7 @@ def validate(input_schema=None, output_schema=None):
                     web.HTTPInternalServerError,
                     "Output is malformed; could not encode JSON object.")
 
+        # Store schemas in wrapped handlers, so it later can be reused
         setattr(wrapped, "_input_schema", input_schema)
         setattr(wrapped, "_output_schema", output_schema)
         return wrapped
