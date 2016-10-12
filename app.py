@@ -5,7 +5,7 @@ tokenize-uk uses regexes and rules to tokenize text into paragraphs,
 paragraphs into sentences and sentences into words.
 """
 from aiohttp import web
-from validator import validate
+from aiohttp_validate import validate
 from swagger import swaggerify, document
 from tokenize_uk import tokenize_text
 from schema import TOKENIZE_TEXT_OUTPUT_SCHEMA, TOKENIZE_TEXT_INPUT_SCHEMA
@@ -20,8 +20,8 @@ __email__ = "chaplinsky.dmitry@gmail.com"
 
 
 @validate(
-    input_schema=TOKENIZE_TEXT_INPUT_SCHEMA,
-    output_schema=TOKENIZE_TEXT_OUTPUT_SCHEMA,
+    request_schema=TOKENIZE_TEXT_INPUT_SCHEMA,
+    response_schema=TOKENIZE_TEXT_OUTPUT_SCHEMA,
 )
 @document(
     info={

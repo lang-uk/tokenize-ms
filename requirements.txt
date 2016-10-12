@@ -4,3 +4,4 @@ gunicorn==19.6.0
 jsonschema==2.5.1
 six==1.10.0
 tokenize-uk==0.1.5
+aiohttp_validate==0.1.1

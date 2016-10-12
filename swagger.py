@@ -60,28 +60,28 @@ def swaggerify(app, parse_module_info=True, **kwargs):
             "consumes": ["application/json"],
             "produces": ["application/json"],
             "responses": {
-                "400": {"description": "Input is malformed or invalid"},
-                "500": {"description": "Output malformed or invalid"},
+                "400": {"description": "Request is malformed or invalid"},
+                "500": {"description": "Response malformed or invalid"},
                 "405": {"description": "Method is not allowed"},
             }
         }
 
-        if hasattr(r.handler, "_input_schema"):
+        if hasattr(r.handler, "_request_schema"):
             desc["parameters"] = [{
                 "in": "body",
                 "name": "body",
                 "required": True,
-                "schema": r.handler._input_schema
+                "schema": r.handler._request_schema
             }]
 
             if hasattr(r.handler, "_swg_input"):
                 desc["parameters"][0].update(r.handler._swg_input)
 
-        if hasattr(r.handler, "_output_schema"):
+        if hasattr(r.handler, "_response_schema"):
             desc["responses"]["200"] = {
                 # TODO: think how to override
                 "description": "Results of the request",
-                "schema": r.handler._output_schema
+                "schema": r.handler._response_schema
             }
 
             if hasattr(r.handler, "_swg_output"):
