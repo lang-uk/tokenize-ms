@@ -6,7 +6,7 @@ paragraphs into sentences and sentences into words.
 """
 from aiohttp import web
 from aiohttp_validate import validate
-from swagger import swaggerify, document
+from aiohttp_swaggerify import swaggerify, document
 from tokenize_uk import tokenize_text
 from schema import TOKENIZE_TEXT_OUTPUT_SCHEMA, TOKENIZE_TEXT_INPUT_SCHEMA
 
