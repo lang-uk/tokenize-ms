@@ -1,0 +1,18 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker build --rm=false -t chaliy/tokenize-ms .
+
+test:
+  override:
+    - echo "No tests yet. Skipping..."
+
+deployment:
+  release:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push chaliy/tokenize-ms:latest
